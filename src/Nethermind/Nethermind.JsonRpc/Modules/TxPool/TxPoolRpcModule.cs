@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Demerzel Solutions Limited
 // SPDX-License-Identifier: LGPL-3.0-only
 
+using Nethermind.Core;
 using Nethermind.Core.Specs;
 using Nethermind.TxPool;
 
@@ -28,6 +29,13 @@ namespace Nethermind.JsonRpc.Modules.TxPool
         {
             var poolInfo = txPoolInfoProvider.GetInfo();
             return ResultWrapper<TxPoolInspection>.Success(new TxPoolInspection(poolInfo));
+        }
+
+        public ResultWrapper<TxPoolContentFrom> txpool_contentFrom(Address address)
+        {
+            var poolInfo = txPoolInfoProvider.GetInfo();
+            var chainId = specProvider.ChainId;
+            return ResultWrapper<TxPoolContentFrom>.Success(new TxPoolContentFrom(poolInfo, chainId, address));
         }
     }
 }

@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2022 Demerzel Solutions Limited
 // SPDX-License-Identifier: LGPL-3.0-only
 
+using Nethermind.Core;
+
 namespace Nethermind.JsonRpc.Modules.TxPool
 {
     [RpcModule(ModuleType.TxPool)]
@@ -18,5 +20,8 @@ namespace Nethermind.JsonRpc.Modules.TxPool
             IsImplemented = true,
             ExampleResponse = "{\"0xb49928fcb10123e451cfe63aa47edcaea0f8aeea\":{\"20\":\"0xb49928fcb10123e451cfe63aa47edcaea0f8aeea: 0 wei + 6721975 × 140000000000 gas\",\"21\":\"0xb49928fcb10123e451cfe63aa47edcaea0f8aeea: 0 wei + 6721975 × 140000000000 gas\",\"22\":\"0xb49928fcb10123e451cfe63aa47edcaea0f8aeea: 0 wei + 6721975 × 140000000000 gas\",\"23\":\"0xb49928fcb10123e451cfe63aa47edcaea0f8aeea: 0 wei + 6700000 × 140000000000 gas\",\"24\":\"0xb49928fcb10123e451cfe63aa47edcaea0f8aeea: 0 wei + 6700000 × 140000000000 gas\",\"27\":\"0xb49928fcb10123e451cfe63aa47edcaea0f8aeea: 0 wei + 6700000 × 140000000000 gas\"},\"0xc51db3339a7603f70b347a0b9680554f777d1f3c\":{\"82\":\"0xc51db3339a7603f70b347a0b9680554f777d1f3c: 0 wei + 4500000 × 10000000000 gas\"},\"0x084dd4aefc6853253573fee9f5fcc23e849d164c\":{\"17\":\"0x084dd4aefc6853253573fee9f5fcc23e849d164c: 0 wei + 28472169 × 1000000008 gas\"}}")]
         ResultWrapper<TxPoolInspection> txpool_inspect();
+
+        [JsonRpcMethod(Description = "Returns tx pool content from a specific address.", IsImplemented = true, ExampleResponse = "{\"pending\":{\"806\":{\"hash\":\"0xaf953a2d01f55cfe080c0c94150a60105e8ac3d51153058a1f03dd239dd08586\",\"nonce\":\"0x326\",\"blockHash\":null,\"blockNumber\":null,\"transactionIndex\":null,\"from\":\"0x0216d5032f356960cd3749c31ab34eeff21b3395\",\"to\":\"0x7f69a91a3cf4be60020fb58b893b7cbb65376db8\",\"value\":\"0x19a99f0cf456000\",\"gasPrice\":\"0xba43b7400\",\"gas\":\"0x5208\",\"input\":\"0x\",\"type\":\"0x0\"}},\"queued\":{}}")]
+        ResultWrapper<TxPoolContentFrom> txpool_contentFrom([JsonRpcParameter(ExampleValue = "0x0216d5032f356960cd3749c31ab34eeff21b3395")] Address address);
     }
 }
