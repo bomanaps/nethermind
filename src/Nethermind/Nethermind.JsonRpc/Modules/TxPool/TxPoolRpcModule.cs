@@ -33,8 +33,8 @@ namespace Nethermind.JsonRpc.Modules.TxPool
 
         public ResultWrapper<TxPoolContentFrom> txpool_contentFrom(Address address)
         {
-            var poolInfo = txPoolInfoProvider.GetInfo();
-            var chainId = specProvider.ChainId;
+            TxPoolInfo poolInfo = txPoolInfoProvider.GetInfo(address);
+            ulong chainId = specProvider.ChainId;
             return ResultWrapper<TxPoolContentFrom>.Success(new TxPoolContentFrom(poolInfo, chainId, address));
         }
     }

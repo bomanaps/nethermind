@@ -12,15 +12,17 @@ namespace Nethermind.JsonRpc.Modules.TxPool
 {
     public class TxPoolContentFrom
     {
+        private static readonly Dictionary<ulong, TransactionForRpc> _emptyDictionary = [];
+
         public TxPoolContentFrom(TxPoolInfo info, ulong chainId, Address address)
         {
             TransactionForRpcContext extraData = new(chainId);
             Pending = info.Pending.TryGetValue(address, out var pending)
                 ? pending.ToDictionary(v => v.Key, v => TransactionForRpc.FromTransaction(v.Value, extraData))
-                : new Dictionary<ulong, TransactionForRpc>();
+                : _emptyDictionary;
             Queued = info.Queued.TryGetValue(address, out var queued)
                 ? queued.ToDictionary(v => v.Key, v => TransactionForRpc.FromTransaction(v.Value, extraData))
-                : new Dictionary<ulong, TransactionForRpc>();
+                : _emptyDictionary;
         }
 
         public Dictionary<ulong, TransactionForRpc> Pending { get; set; }

@@ -12,6 +12,38 @@ namespace Nethermind.TxPool
 
         public TxPoolInfoProvider(IChainHeadInfoProvider chainHeadInfoProvider, ITxPool txPool) : this(chainHeadInfoProvider.ReadOnlyStateProvider, txPool) { }
 
+        public TxPoolInfo GetInfo(Address address)
+        {
+            Transaction[] transactions = txPool.GetPendingTransactionsBySender(address);
+            var accountNonce = accountStateProvider.GetNonce(address);
+            var expectedNonce = accountNonce;
+            var pending = new Dictionary<ulong, Transaction>();
+            var queued = new Dictionary<ulong, Transaction>();
+
+            foreach (Transaction transaction in transactions.OrderBy(static t => t.Nonce))
+            {
+                ulong transactionNonce = (ulong)transaction.Nonce;
+                if (transaction.Nonce == expectedNonce)
+                {
+                    pending.Add(transactionNonce, transaction);
+                    expectedNonce = transaction.Nonce + 1;
+                }
+                else
+                {
+                    queued.Add(transactionNonce, transaction);
+                }
+            }
+
+            Dictionary<AddressAsKey, IDictionary<ulong, Transaction>> pendingTransactions = pending.Count != 0
+                ? new() { [address] = pending }
+                : new();
+            Dictionary<AddressAsKey, IDictionary<ulong, Transaction>> queuedTransactions = queued.Count != 0
+                ? new() { [address] = queued }
+                : new();
+
+            return new TxPoolInfo(pendingTransactions, queuedTransactions);
+        }
+
         public TxPoolInfo GetInfo()
         {
             // only std txs are picked here. Should we add blobs?
