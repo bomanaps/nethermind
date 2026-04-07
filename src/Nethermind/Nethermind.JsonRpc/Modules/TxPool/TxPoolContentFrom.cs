@@ -12,7 +12,7 @@ namespace Nethermind.JsonRpc.Modules.TxPool
 {
     public class TxPoolContentFrom
     {
-        private static readonly Dictionary<ulong, TransactionForRpc> _emptyDictionary = [];
+        private static readonly IReadOnlyDictionary<ulong, TransactionForRpc> _emptyDictionary = new Dictionary<ulong, TransactionForRpc>();
 
         public TxPoolContentFrom(TxPoolInfo info, ulong chainId, Address address)
         {
@@ -25,7 +25,7 @@ namespace Nethermind.JsonRpc.Modules.TxPool
                 : _emptyDictionary;
         }
 
-        public Dictionary<ulong, TransactionForRpc> Pending { get; set; }
-        public Dictionary<ulong, TransactionForRpc> Queued { get; set; }
+        public IReadOnlyDictionary<ulong, TransactionForRpc> Pending { get; set; }
+        public IReadOnlyDictionary<ulong, TransactionForRpc> Queued { get; set; }
     }
 }
