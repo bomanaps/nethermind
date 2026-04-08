@@ -68,4 +68,47 @@ public class TxPoolRpcModuleTests
         rpcTxA!.ChainId.Should().BeNull();
         rpcTxB!.ChainId.Should().Be(SomeChainId);
     }
+
+    [Test]
+    public void Pool_contentFrom_returns_pending_and_queued_transactions_for_address()
+    {
+        Transaction txPending = Build.A.Transaction
+            .WithType(TxType.Legacy)
+            .TestObject;
+        Transaction txQueued = Build.A.Transaction
+            .WithType(TxType.Legacy)
+            .TestObject;
+
+        ITxPoolInfoProvider txPoolInfoProvider = Substitute.For<ITxPoolInfoProvider>();
+        txPoolInfoProvider.GetInfo(TestItem.AddressA).Returns(new TxPoolInfo(
+            pending: new()
+            {
+                {
+                    new AddressAsKey(TestItem.AddressA), new Dictionary<ulong, Transaction>
+                    {
+                        { 1, txPending }
+                    }
+                }
+            },
+            queued: new()
+            {
+                {
+                    new AddressAsKey(TestItem.AddressA), new Dictionary<ulong, Transaction>
+                    {
+                        { 5, txQueued }
+                    }
+                }
+            }
+        ));
+
+        ISpecProvider specProvider = Substitute.For<ISpecProvider>();
+        TxPoolRpcModule txPoolRpcModule = new(txPoolInfoProvider, specProvider);
+
+        TxPoolContentFrom result = txPoolRpcModule.txpool_contentFrom(TestItem.AddressA).Data;
+
+        result.Pending.Should().ContainKey(1ul);
+        result.Pending[1ul].Should().BeOfType<LegacyTransactionForRpc>();
+        result.Queued.Should().ContainKey(5ul);
+        result.Queued[5ul].Should().BeOfType<LegacyTransactionForRpc>();
+    }
 }
