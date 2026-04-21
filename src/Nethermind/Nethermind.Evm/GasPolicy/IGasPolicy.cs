@@ -189,6 +189,23 @@ public interface IGasPolicy<TSelf> where TSelf : struct, IGasPolicy<TSelf>
         in UInt256 length, VmState<TSelf> vmState);
 
     /// <summary>
+    /// Calculates and deducts the gas cost for accessing a specific memory region.
+    /// Overload for call sites that already have a native-sized length.
+    /// </summary>
+    /// <param name="gas">The gas state to update.</param>
+    /// <param name="position">The starting position in memory.</param>
+    /// <param name="length">The length of the memory region.</param>
+    /// <param name="vmState">The current EVM state.</param>
+    /// <returns><c>true</c> if sufficient gas was available and deducted; otherwise, <c>false</c>.</returns>
+    static virtual bool UpdateMemoryCost(ref TSelf gas,
+        in UInt256 position,
+        ulong length, VmState<TSelf> vmState)
+    {
+        UInt256 uint256Length = new(length);
+        return TSelf.UpdateMemoryCost(ref gas, in position, in uint256Length, vmState);
+    }
+
+    /// <summary>
     /// Deducts a specified gas cost from the available gas.
     /// </summary>
     /// <param name="gas">The gas state to update.</param>
@@ -263,8 +280,8 @@ public interface IGasPolicy<TSelf> where TSelf : struct, IGasPolicy<TSelf>
         codeInsertRefunds > 0 ? (GasCostOf.NewAccount - GasCostOf.PerAuthBaseCost) * codeInsertRefunds : 0;
 
     /// <summary>
-    /// Applies EIP-7702 code insert refunds: state refund to reservoir + returns regular refund amount.
-    /// Only call on success paths (state gas accounting must not be modified on error).
+    /// Applies EIP-7702 code insert refunds: EIP-8037 state refund to reservoir + regular refund amount.
+    /// For EIP-8037 this is applied before execution so later state charges can consume the refunded reservoir.
     /// </summary>
     /// <param name="stateGasFloor">Minimum state gas used (intrinsic state gas), for clamping refunds.</param>
     static virtual long ApplyCodeInsertRefunds(ref TSelf gas, int codeInsertRefunds, IReleaseSpec spec, long stateGasFloor) =>
